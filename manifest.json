@@ -1,0 +1,6 @@
+{
+  "provides": "spvreflect",
+  "targets": {
+    "linux-x64": { "linked-libraries": ["spvreflect"] }
+  }
+}
