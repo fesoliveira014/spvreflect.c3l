@@ -1,0 +1,6 @@
+This package vendors a static build (linux/libspvreflect.a) of SPIRV-Reflect,
+part of the KhronosGroup SPIRV-Reflect project, licensed under the Apache
+License 2.0. The full license text is in LICENSE.spirv-reflect.apache-2.0.
+See https://github.com/KhronosGroup/SPIRV-Reflect.
+
+The C3 binding itself (spvreflect.c3) is MIT-licensed — see LICENSE.
