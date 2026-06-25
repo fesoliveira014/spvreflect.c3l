@@ -7,12 +7,15 @@ module spvreflect;
 // build a reflect module from SPIR-V bytes, enumerate descriptor bindings,
 // read each binding's index/set/descriptor_type, and destroy the module.
 
-// SpvReflectShaderModule is a large value struct (1216 bytes on x86_64,
-// measured with a C probe printing sizeof against the SDK header). The C API
-// only ever takes/returns it by pointer, so the engine treats it as opaque
-// sized storage: allocate a SHADER_MODULE_SIZE byte blob and pass its pointer.
-// non-inline: SpvReflectShaderModule is a 1216-byte value struct, not a pointer
-// handle — inline void* would misrepresent the ABI (8 bytes vs 1216).
+// SpvReflectShaderModule is a large value struct (1216 bytes on linux-x64,
+// 1200 bytes on windows-x64 — both measured with a C probe printing sizeof
+// against each platform's SDK header). The C API only ever takes/returns it by
+// pointer, so the engine treats it as opaque sized storage: allocate a
+// SHADER_MODULE_SIZE byte blob and pass its pointer. SHADER_MODULE_SIZE is the
+// MAX across platforms (1216) so the blob is never under-allocated; the library
+// writes its own platform sizeof (<= 1216) into it, leaving any slack unused.
+// non-inline: SpvReflectShaderModule is a 1200-1216-byte value struct, not a
+// pointer handle — inline void* would misrepresent the ABI (8 bytes vs 1216).
 typedef ShaderModule     = void;
 const usz SHADER_MODULE_SIZE = 1216;
 
