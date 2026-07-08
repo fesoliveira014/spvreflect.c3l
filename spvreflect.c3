@@ -79,14 +79,15 @@ constdef ShaderStage : uint
 }
 
 // Verified byte offsets (offsetof C probe against the SDK header, linux-x64).
-// Both structs open with an 8-byte pointer followed by fixed-width fields, so
-// the offsets are identical on windows-x64.
+// Only 8-byte pointers and 4-byte uint32 fields precede the read members —
+// identical layout under the MS ABI, so windows-x64 offsets match.
 // SpvReflectEntryPoint: name=0 (const char*), shader_stage=16 (uint32_t).
 // SpvReflectBlockVariable: offset=16, size=24 (both uint32_t, bytes).
 const usz OFFSET_ENTRY_POINT_STAGE = 16;
 const usz OFFSET_BLOCK_OFFSET      = 16;
 const usz OFFSET_BLOCK_SIZE        = 24;
 
+<* Null when no entry point matches `name`. *>
 extern fn EntryPoint* ShaderModule.get_entry_point(&self, ZString name) @cname("spvReflectGetEntryPoint");
 extern fn ReflectResult ShaderModule.enumerate_push_constant_blocks(&self, uint* count, BlockVariable** blocks) @cname("spvReflectEnumeratePushConstantBlocks");
 
