@@ -63,9 +63,9 @@ fn DescriptorType DescriptorBinding.descriptor_type(&self) {
     return *(DescriptorType*)((char*)self + OFFSET_DESCRIPTOR_TYPE);
 }
 
-// Entry-point and push-constant reflection (gpu.c3l#48). Both structs are
-// value structs handed back by pointer; same opaque + verified-offset idiom
-// as DescriptorBinding.
+// Entry-point and push-constant reflection. Both structs are value structs
+// handed back by pointer; same opaque + verified-offset idiom as
+// DescriptorBinding.
 typedef EntryPoint    = void;
 typedef BlockVariable = void;
 
