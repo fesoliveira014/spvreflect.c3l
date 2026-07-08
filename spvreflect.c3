@@ -1,21 +1,20 @@
 module spvreflect;
 
-// SPIRV-Reflect (Khronos), vendored from the Vulkan SDK
-// (include/SPIRV-Reflect/spirv_reflect.{h,c}).
+// SPIRV-Reflect (Khronos), vendored at tag vulkan-sdk-1.4.341.0 for BOTH
+// platforms (gcc/mingw -O2 -DNDEBUG; see README for the exact build commands).
+// Both libs must come from the same tag: push-block `size` semantics changed
+// at vulkan-sdk-1.4.304 (tight vs padded), which consumers validate against.
 //
 // Bound surface: build a reflect module from SPIR-V bytes, enumerate
 // descriptor bindings (index/set/type), look up entry points (existence +
 // stage), enumerate push-constant blocks (offset/size), destroy the module.
 
-// SpvReflectShaderModule is a large value struct (1216 bytes on linux-x64,
-// 1200 bytes on windows-x64 — both measured with a C probe printing sizeof
-// against each platform's SDK header). The C API only ever takes/returns it by
-// pointer, so the engine treats it as opaque sized storage: allocate a
-// SHADER_MODULE_SIZE byte blob and pass its pointer. SHADER_MODULE_SIZE is the
-// MAX across platforms (1216) so the blob is never under-allocated; the library
-// writes its own platform sizeof (<= 1216) into it, leaving any slack unused.
-// non-inline: SpvReflectShaderModule is a 1200-1216-byte value struct, not a
-// pointer handle — inline void* would misrepresent the ABI (8 bytes vs 1216).
+// SpvReflectShaderModule is a large value struct (1216 bytes on both x64
+// platforms at the pinned tag, measured with a C offsetof/sizeof probe). The C
+// API only ever takes/returns it by pointer, so the engine treats it as opaque
+// sized storage: allocate a SHADER_MODULE_SIZE byte blob and pass its pointer.
+// non-inline: a 1216-byte value struct, not a pointer handle — inline void*
+// would misrepresent the ABI.
 typedef ShaderModule     = void;
 const usz SHADER_MODULE_SIZE = 1216;
 
