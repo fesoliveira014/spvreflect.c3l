@@ -3,9 +3,9 @@ module spvreflect;
 // SPIRV-Reflect (Khronos), vendored from the Vulkan SDK
 // (include/SPIRV-Reflect/spirv_reflect.{h,c}).
 //
-// Only the surface needed to enumerate set-0 descriptor bindings is bound:
-// build a reflect module from SPIR-V bytes, enumerate descriptor bindings,
-// read each binding's index/set/descriptor_type, and destroy the module.
+// Bound surface: build a reflect module from SPIR-V bytes, enumerate
+// descriptor bindings (index/set/type), look up entry points (existence +
+// stage), enumerate push-constant blocks (offset/size), destroy the module.
 
 // SpvReflectShaderModule is a large value struct (1216 bytes on linux-x64,
 // 1200 bytes on windows-x64 — both measured with a C probe printing sizeof
@@ -61,4 +61,45 @@ fn uint DescriptorBinding.set_index(&self) {
 
 fn DescriptorType DescriptorBinding.descriptor_type(&self) {
     return *(DescriptorType*)((char*)self + OFFSET_DESCRIPTOR_TYPE);
+}
+
+// Entry-point and push-constant reflection (gpu.c3l#48). Both structs are
+// value structs handed back by pointer; same opaque + verified-offset idiom
+// as DescriptorBinding.
+typedef EntryPoint    = void;
+typedef BlockVariable = void;
+
+// SpvReflectShaderStageFlagBits values (Vulkan stage bits; confirmed against
+// the SDK header via a C probe: VERTEX=0x1, FRAGMENT=0x10, COMPUTE=0x20).
+constdef ShaderStage : uint
+{
+    SHADER_STAGE_VERTEX   = 0x1,
+    SHADER_STAGE_FRAGMENT = 0x10,
+    SHADER_STAGE_COMPUTE  = 0x20,
+}
+
+// Verified byte offsets (offsetof C probe against the SDK header, linux-x64).
+// Only 8-byte pointers and 4-byte uint32 fields precede the read members —
+// identical layout under the MS ABI, so windows-x64 offsets match.
+// SpvReflectEntryPoint: name=0 (const char*), shader_stage=16 (uint32_t).
+// SpvReflectBlockVariable: offset=16, size=24 (both uint32_t, bytes).
+const usz OFFSET_ENTRY_POINT_STAGE = 16;
+const usz OFFSET_BLOCK_OFFSET      = 16;
+const usz OFFSET_BLOCK_SIZE        = 24;
+
+<* Null when no entry point matches `name`. *>
+extern fn EntryPoint* ShaderModule.get_entry_point(&self, ZString name) @cname("spvReflectGetEntryPoint");
+extern fn ReflectResult ShaderModule.enumerate_push_constant_blocks(&self, uint* count, BlockVariable** blocks) @cname("spvReflectEnumeratePushConstantBlocks");
+
+fn ShaderStage EntryPoint.stage(&self) {
+    return *(ShaderStage*)((char*)self + OFFSET_ENTRY_POINT_STAGE);
+}
+
+<* Lowest member offset of the push block, in bytes. *>
+fn uint BlockVariable.byte_offset(&self) {
+    return *(uint*)((char*)self + OFFSET_BLOCK_OFFSET);
+}
+
+fn uint BlockVariable.byte_size(&self) {
+    return *(uint*)((char*)self + OFFSET_BLOCK_SIZE);
 }
