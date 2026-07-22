@@ -1,0 +1,11 @@
+{
+  "langrev": "1",
+  "dependency-search-paths": [ "../.." ],
+  "dependencies": [ "spvreflect" ],
+  "targets": {
+    "unit": {
+      "type": "test",
+      "sources": [ "test_reflection.c3" ]
+    }
+  }
+}

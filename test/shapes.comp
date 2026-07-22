@@ -1,0 +1,26 @@
+#version 460
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+
+struct NestedValue {
+    uint value;
+};
+
+layout(set = 0, binding = 0, std430) buffer Output {
+    uint64_t values[];
+} output_buffer;
+
+layout(push_constant, std430) uniform ShapesPush {
+    int64_t     signed_value;
+    u64vec2     vector_value;
+    mat2        matrix_value;
+    uint64_t    array_value[2];
+    NestedValue nested_value;
+} shapes;
+
+void main() {
+    output_buffer.values[0] = uint64_t(shapes.signed_value);
+    output_buffer.values[1] = shapes.vector_value.x;
+    output_buffer.values[2] = uint64_t(shapes.matrix_value[0][0]);
+    output_buffer.values[3] = shapes.array_value[0];
+    output_buffer.values[4] = uint64_t(shapes.nested_value.value);
+}
