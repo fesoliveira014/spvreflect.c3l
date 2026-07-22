@@ -1,0 +1,14 @@
+#version 460
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+
+layout(set = 0, binding = 0, std430) buffer Output {
+    uint64_t value;
+} output_buffer;
+
+layout(push_constant, std430) uniform RootPush {
+    uint64_t root_buffer;
+} root_push;
+
+void main() {
+    output_buffer.value = root_push.root_buffer;
+}

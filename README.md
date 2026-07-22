@@ -24,6 +24,24 @@ ucrt does not export.
 
 The binding is MIT-licensed; the vendored library is Apache-2.0 (see `NOTICE`).
 
+## Validate the binding
+
+Regenerate the checked-in reflection fixture and run the C3 test:
+
+```sh
+glslc test/root.comp -o test/root.comp.spv
+glslc test/shapes.comp -o test/shapes.comp.spv
+c3c test unit --path test
+```
+
+Compile the layout probe against the exact pinned SPIRV-Reflect checkout for
+both supported x64 ABIs:
+
+```sh
+gcc -std=c11 -I/path/to/SPIRV-Reflect test/layout_probe.c -o /tmp/spvreflect-layout-linux
+x86_64-w64-mingw32-gcc -std=c11 -I/path/to/SPIRV-Reflect -c test/layout_probe.c -o /tmp/spvreflect-layout-windows.o
+```
+
 ## Use (git submodule)
 
 ```sh
