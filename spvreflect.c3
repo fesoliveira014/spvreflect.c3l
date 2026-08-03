@@ -78,12 +78,18 @@ constdef ReflectResult : int
 }
 
 // SpvReflectShaderStageFlagBits values (Vulkan stage bits; confirmed against
-// the SDK header via a C probe: VERTEX=0x1, FRAGMENT=0x10, COMPUTE=0x20).
+// the SDK header via a C probe).
 constdef ShaderStage : uint
 {
-    SHADER_STAGE_VERTEX   = 0x1,
-    SHADER_STAGE_FRAGMENT = 0x10,
-    SHADER_STAGE_COMPUTE  = 0x20,
+    SHADER_STAGE_VERTEX           = 0x1,
+    SHADER_STAGE_FRAGMENT         = 0x10,
+    SHADER_STAGE_COMPUTE          = 0x20,
+    SHADER_STAGE_RAYGEN_KHR       = 0x100,
+    SHADER_STAGE_ANY_HIT_KHR      = 0x200,
+    SHADER_STAGE_CLOSEST_HIT_KHR  = 0x400,
+    SHADER_STAGE_MISS_KHR         = 0x800,
+    SHADER_STAGE_INTERSECTION_KHR = 0x1000,
+    SHADER_STAGE_CALLABLE_KHR     = 0x2000,
 }
 
 constdef TypeFlags : uint
