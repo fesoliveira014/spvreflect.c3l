@@ -4,6 +4,7 @@ import spvreflect;
 
 const char[*] ROOT_SPIRV = $embed("root.comp.spv");
 const char[*] SHAPES_SPIRV = $embed("shapes.comp.spv");
+const char[*] RAY_QUERY_SPIRV = $embed("ray_query.comp.spv");
 
 fn bool has_type_flag(
     spvreflect::BlockVariable* variable,
@@ -76,6 +77,37 @@ fn void selected_entry_point_interfaces_are_reflected() @test {
     assert(member.matrix_column_count() == 0);
     assert(member.matrix_row_count() == 0);
     assert(member.array_dimension_count() == 0);
+}
+
+fn void ray_query_acceleration_structure_binding_is_reflected() @test {
+    ulong[spvreflect::SHADER_MODULE_SIZE / 8] module_storage;
+    spvreflect::ShaderModule* reflect_module =
+        (spvreflect::ShaderModule*)&module_storage;
+    assert(spvreflect::create_shader_module(
+        RAY_QUERY_SPIRV.len,
+        &RAY_QUERY_SPIRV[0],
+        reflect_module,
+    ) == spvreflect::ReflectResult.RESULT_SUCCESS);
+    defer reflect_module.destroy();
+
+    uint descriptor_count = 0;
+    assert(reflect_module.enumerate_entry_point_descriptor_bindings(
+        "main",
+        &descriptor_count,
+        null,
+    ) == spvreflect::ReflectResult.RESULT_SUCCESS);
+    assert(descriptor_count == 1);
+    spvreflect::DescriptorBinding*[1] descriptors;
+    assert(reflect_module.enumerate_entry_point_descriptor_bindings(
+        "main",
+        &descriptor_count,
+        &descriptors[0],
+    ) == spvreflect::ReflectResult.RESULT_SUCCESS);
+    assert(descriptors[0].set_index() == 0);
+    assert(descriptors[0].binding_index() == 5);
+    assert(descriptors[0].descriptor_type()
+        == spvreflect::DescriptorType
+            .DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR);
 }
 
 fn void non_scalar_member_shapes_are_reflected() @test {
