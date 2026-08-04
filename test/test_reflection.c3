@@ -13,6 +13,18 @@ fn bool has_type_flag(
     return ((uint)variable.type_flags() & (uint)flag) != 0;
 }
 
+fn void shader_stage_values_match_spirv_reflect() @test {
+    assert((uint)spvreflect::ShaderStage.SHADER_STAGE_VERTEX == 0x1);
+    assert((uint)spvreflect::ShaderStage.SHADER_STAGE_FRAGMENT == 0x10);
+    assert((uint)spvreflect::ShaderStage.SHADER_STAGE_COMPUTE == 0x20);
+    assert((uint)spvreflect::ShaderStage.SHADER_STAGE_RAYGEN_KHR == 0x100);
+    assert((uint)spvreflect::ShaderStage.SHADER_STAGE_ANY_HIT_KHR == 0x200);
+    assert((uint)spvreflect::ShaderStage.SHADER_STAGE_CLOSEST_HIT_KHR == 0x400);
+    assert((uint)spvreflect::ShaderStage.SHADER_STAGE_MISS_KHR == 0x800);
+    assert((uint)spvreflect::ShaderStage.SHADER_STAGE_INTERSECTION_KHR == 0x1000);
+    assert((uint)spvreflect::ShaderStage.SHADER_STAGE_CALLABLE_KHR == 0x2000);
+}
+
 fn void selected_entry_point_interfaces_are_reflected() @test {
     ulong[spvreflect::SHADER_MODULE_SIZE / 8] module_storage;
     spvreflect::ShaderModule* reflect_module =
