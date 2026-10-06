@@ -1,0 +1,97 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  C3C_VERSION: '0.8.3'
+  PROVIDES: spvreflect
+
+jobs:
+  package:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_ENV"
+          else
+            echo "VERSION=0.0.0-dev" >> "$GITHUB_ENV"
+          fi
+      - name: Pack per-platform artifacts
+        run: |
+          mkdir -p dist
+          pack() {
+            local platform="$1" natives="$2"
+            {
+              find . -maxdepth 1 -type f \( -name manifest.json -o -name 'LICENSE*' -o -name 'NOTICE*' \
+                -o -name README.md -o -name '*.c3' -o -name '*.c3i' \)
+              if [[ -n "$natives" && -d "$natives" ]]; then find "$natives" -type f; fi
+            } | sed 's|^\./||' | LC_ALL=C sort \
+              | zip -X -q "dist/${PROVIDES}-v${VERSION}-${platform}.c3l" -@
+          }
+          pack linux-x64 linux
+          pack windows-x64 windows
+          (cd dist && sha256sum ./*.c3l | sed 's|\./||' > SHA256SUMS && cat SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist/*
+          if-no-files-found: error
+
+  smoke:
+    needs: package
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [linux-x64, windows-x64]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist
+      - name: Install c3c
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/c3.tar.gz" \
+            "https://github.com/c3lang/c3c/releases/download/v${C3C_VERSION}/c3-linux-static.tar.gz"
+          tar -xzf "$RUNNER_TEMP/c3.tar.gz" -C "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/c3" >> "$GITHUB_PATH"
+      - name: Verify checksums
+        working-directory: dist
+        run: sha256sum -c SHA256SUMS
+      - name: Compile unpacked sources
+        run: |
+          mkdir unpacked
+          unzip -q dist/*-${{ matrix.target }}.c3l -d unpacked
+          test -f unpacked/manifest.json
+          unzip -l dist/*-${{ matrix.target }}.c3l
+          cd unpacked
+          c3c compile-only --no-obj ./*.c3 $(ls ./*.c3i 2>/dev/null)
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: smoke
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts
+          path: dist
+      - name: Publish release
+        working-directory: dist
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" ./*.c3l ./SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" --verify-tag \
+            --title "$GITHUB_REF_NAME" --generate-notes

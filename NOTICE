@@ -1,6 +1,12 @@
-This package vendors a static build (linux/libspvreflect.a) of SPIRV-Reflect,
-part of the KhronosGroup SPIRV-Reflect project, licensed under the Apache
-License 2.0. The full license text is in LICENSE.spirv-reflect.apache-2.0.
+This package vendors static builds of SPIRV-Reflect, part of the KhronosGroup
+SPIRV-Reflect project, licensed under the Apache License 2.0:
+
+- linux/libspvreflect.a, built with gcc.
+- windows/spvreflect.lib, cross-built with x86_64-w64-mingw32-gcc and
+  x86_64-w64-mingw32-ar from the same source tag, with -DNDEBUG.
+
+Both are built from tag vulkan-sdk-1.4.341.0; the commands are in README.md.
+The full license text is in LICENSE.spirv-reflect.apache-2.0.
 See https://github.com/KhronosGroup/SPIRV-Reflect.
 
 The C3 binding itself (spvreflect.c3) is MIT-licensed — see LICENSE.
