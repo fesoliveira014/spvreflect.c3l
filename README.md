@@ -2,7 +2,7 @@
 
 C3 binding for [SPIRV-Reflect](https://github.com/KhronosGroup/SPIRV-Reflect) —
 SPIR-V reflection (descriptor bindings, sets, types, entry points,
-push-constant blocks). Vendors static libraries for linux-x64 and windows-x64.
+push-constant blocks). Static libraries for linux-x64 (vendored) and windows-x64 (built in CI).
 
 ## Vendored library version
 
@@ -15,12 +15,16 @@ git clone --depth 1 --branch vulkan-sdk-1.4.341.0 https://github.com/KhronosGrou
 cd SPIRV-Reflect
 gcc -O2 -DNDEBUG -c spirv_reflect.c -o spirv_reflect.o        # linux-x64
 ar rcs libspvreflect.a spirv_reflect.o
-x86_64-w64-mingw32-gcc -O2 -DNDEBUG -c spirv_reflect.c -o spirv_reflect_win.o   # windows-x64
-x86_64-w64-mingw32-ar rcs spvreflect.lib spirv_reflect_win.o
 ```
 
-`-DNDEBUG` matters on windows: mingw's `assert` pulls `__imp__assert`, which
-ucrt does not export.
+```bat
+rem windows-x64, from an MSVC x64 developer prompt
+cl /nologo /c /O2 /MT /DNDEBUG spirv_reflect.c
+lib /nologo /OUT:spvreflect.lib spirv_reflect.obj
+```
+
+`windows/spvreflect.lib` is built by the release workflow and is not committed.
+`/MT` matches consumers that link the static CRT (`wincrt: static`).
 
 The binding is MIT-licensed; the vendored library is Apache-2.0 (see `NOTICE`).
 
