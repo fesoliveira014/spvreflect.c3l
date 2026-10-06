@@ -25,11 +25,11 @@ jobs:
         with:
           arch: x64
       - name: Build static library
-        shell: bash
+        shell: cmd
         run: |
-          mkdir -p out/windows
+          mkdir out\windows
           cl /nologo /c /O2 /MT /DNDEBUG spirv_reflect.c
-          lib /nologo /OUT:out/windows/spvreflect.lib spirv_reflect.obj
+          lib /nologo /OUT:out\windows\spvreflect.lib spirv_reflect.obj
       - uses: actions/upload-artifact@v4
         with:
           name: windows-library
