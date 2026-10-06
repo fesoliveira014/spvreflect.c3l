@@ -1,7 +1,7 @@
 module spvreflect;
 
 // SPIRV-Reflect (Khronos), vendored at tag vulkan-sdk-1.4.341.0 for BOTH
-// platforms (gcc/mingw -O2 -DNDEBUG; see README for the exact build commands).
+// platforms (gcc on linux, MSVC /MT on windows; see README for the exact build commands).
 // Both libs must come from the same tag: push-block `size` semantics changed
 // at vulkan-sdk-1.4.304 (tight vs padded), which consumers validate against.
 //
