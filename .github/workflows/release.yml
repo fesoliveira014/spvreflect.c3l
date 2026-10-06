@@ -122,8 +122,13 @@ jobs:
           mkdir -p build/consumer
           cp dist/*-${{ matrix.target }}.c3l build/consumer/
           cd build
-          c3c compile ../test/smoke.c3 --libdir consumer --lib spvreflect --warn-deprecation=error -o smoke
-          if [[ "$RUNNER_OS" == Windows ]]; then ./smoke.exe; else ./smoke; fi
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            c3c compile ../test/smoke.c3 --libdir consumer --lib spvreflect --warn-deprecation=error --wincrt=static -o smoke
+            ./smoke.exe
+          else
+            c3c compile ../test/smoke.c3 --libdir consumer --lib spvreflect --warn-deprecation=error -o smoke
+            ./smoke
+          fi
       - name: Check glibc symbols (Linux)
         if: runner.os == 'Linux'
         run: |
