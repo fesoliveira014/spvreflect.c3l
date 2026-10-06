@@ -9,6 +9,6 @@ fn void main() {
     spvreflect::ShaderModule* reflect_module = (spvreflect::ShaderModule*)&module_storage;
     spvreflect::ReflectResult result =
         spvreflect::create_shader_module(COMPUTE_SPIRV.len, &COMPUTE_SPIRV, reflect_module);
-    assert(result == spvreflect::RESULT_SUCCESS);
+    assert(result == spvreflect::ReflectResult.RESULT_SUCCESS);
     reflect_module.destroy();
 }
