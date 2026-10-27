@@ -7,9 +7,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: spvreflect.c3l
-      - name: install c3c 0.8.0
+      - name: install c3c 0.8.5_1
         run: |
-          curl -L -o c3c.tar.gz https://github.com/c3lang/c3c/releases/download/v0.8.0/c3-linux.tar.gz
+          curl -L -o c3c.tar.gz https://github.com/c3lang/c3c/releases/download/v0.8.5_1/c3-linux.tar.gz
           tar xf c3c.tar.gz
           echo "$PWD/c3" >> "$GITHUB_PATH"
       - name: smoke compile+link
